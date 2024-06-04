@@ -24,7 +24,7 @@ class TextNode:
     return f"TextNode({self.text}, {self.text_type}, {self.url})"
   
   
-def text_node_to_html_node(text_node: TextNode) -> HTMLNode:
+def text_node_to_html_node(text_node: TextNode) -> LeafNode:
   if text_node.text_type == text_type_text:
     return LeafNode(None, text_node.text)
   if text_node.text_type == text_type_bold:
@@ -39,3 +39,22 @@ def text_node_to_html_node(text_node: TextNode) -> HTMLNode:
     return LeafNode("img", "", {"src": text_node.url, "alt": text_node.text})
   raise ValueError(f"Invalid text_type: {text_node.text_type}")
   
+def split_nodes_delimiter(old_nodes, delimiter, text_type):
+  new_nodes = []
+  for old_node in old_nodes:
+    if old_node.text_type is not text_type_text:
+      new_nodes.append(old_node)
+      continue
+    split_nodes = []
+    sections = old_node.text.split(delimiter)
+    if len(sections) % 2 == 0:
+        raise ValueError("Invalid markdown, formatted section not closed")
+    for i in range(len(sections)):
+        if sections[i] == "":
+            continue
+        if i % 2 == 0:
+            split_nodes.append(TextNode(sections[i], text_type_text))
+        else:
+            split_nodes.append(TextNode(sections[i], text_type))
+    new_nodes.extend(split_nodes)
+  return new_nodes
