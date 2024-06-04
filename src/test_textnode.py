@@ -1,6 +1,14 @@
 import unittest
 
-from textnode import TextNode, split_nodes_delimiter, text_type_text, text_type_code, text_type_bold
+from textnode import (
+  TextNode,
+  split_nodes_delimiter,
+  extract_markdown_images,
+  extract_markdown_links,
+  text_type_text,
+  text_type_code,
+  text_type_bold 
+)
 
 
 class TestTextNode(unittest.TestCase):
@@ -45,7 +53,7 @@ class TestTextNode(unittest.TestCase):
     ]
     self.assertEqual(new_nodes, expected_result)
     
-  def test_split_nodes_delimiter_code(self):
+  def test_split_nodes_delimiter_bold(self):
     node = TextNode("This is text with a *bold* word", text_type_text)
     new_nodes = split_nodes_delimiter([node], "*", text_type_bold)
     expected_result = [
@@ -54,6 +62,18 @@ class TestTextNode(unittest.TestCase):
       TextNode(" word", text_type_text),
     ]
     self.assertEqual(new_nodes, expected_result)
+  
+  def test_extract_markdown_images(self):
+    text = "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and ![another](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png)"
+    result = extract_markdown_images(text)
+    expected_result = [("image", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"), ("another", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png")]
+    self.assertEqual(result, expected_result)
+    
+  def test_extract_markdown_links(self):
+    text = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)"
+    result = extract_markdown_links(text)
+    expected_result = [("link", "https://www.example.com"), ("another", "https://www.example.com/another")]
+    self.assertEqual(result, expected_result)
 
 if __name__ == "__main__":
   unittest.main()
