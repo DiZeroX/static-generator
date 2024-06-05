@@ -83,6 +83,8 @@ def split_nodes_image(old_nodes):
       split_nodes.append(TextNode(image[0], text_type_image, url=image[1]))
       if sections[1] != "":
         split_nodes.extend(split_nodes_image([TextNode(sections[1], text_type_text)]))
+    else:
+      split_nodes.append(old_node)
     new_nodes.extend(split_nodes)
   return new_nodes
 
@@ -106,3 +108,12 @@ def split_nodes_link(old_nodes):
       split_nodes.append(old_node)
     new_nodes.extend(split_nodes)
   return new_nodes
+
+def text_to_textnodes(text):
+  text_nodes = [TextNode(text, text_type_text)]
+  text_nodes = split_nodes_delimiter(text_nodes, "**", text_type_bold)
+  text_nodes = split_nodes_delimiter(text_nodes, "*", text_type_italic)
+  text_nodes = split_nodes_delimiter(text_nodes, "`", text_type_code)
+  text_nodes = split_nodes_image(text_nodes)
+  text_nodes = split_nodes_link(text_nodes)
+  return text_nodes
