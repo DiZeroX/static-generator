@@ -1,8 +1,11 @@
-from textnode import TextNode
+import shutil
+import os
+from page_generator import copy_directory
 
 def main():
-  sample_text_node = TextNode("Text node content", "italic", "https://www.google.com")
-  print(sample_text_node)
+  shutil.rmtree("./public")
+  os.mkdir("./public")
+  copy_directory("./static", "./public")
   
 if __name__=="__main__":
   main()
