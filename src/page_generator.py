@@ -1,5 +1,6 @@
 import os
 import shutil
+from block_markdown import markdown_to_html_node
 
 def copy_directory(static_path, public_path):
   if not os.path.exists(static_path):
@@ -16,4 +17,32 @@ def copy_directory(static_path, public_path):
     else:
       os.mkdir(full_public_path)
       copy_directory(full_static_path, full_public_path)
+
+def extract_title(markdown):
+  for line in markdown.splitlines():
+    if line.startswith("# "):
+      return line[2:]
+  raise Exception("no h1 header")
+
+def generate_page(from_path, template_path, dest_path):
+  print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+  markdown_file = open(from_path)
+  markdown_text = markdown_file.read()
+  markdown_file.close()
+  template_file = open(template_path)
+  template_text = template_file.read()
+  template_file.close()
+  
+  html_text = markdown_to_html_node(markdown_text).to_html()
+  title = extract_title(markdown_text)
+  edited_template_text = template_text.replace(r"{{ Title }}", title)
+  edited_template_text = edited_template_text.replace(r"{{ Content }}", html_text)
+  
+  dest_path_split = dest_path.split(r"/")
+  file_name = dest_path_split[-1]
+  dest_dirs = "/".join(dest_path_split[0:-1])
+  os.makedirs(dest_dirs, exist_ok=True)
+  page_html_file = open(dest_path, "w")
+  page_html_file.write(edited_template_text)
+  page_html_file.close()
   
